@@ -30,7 +30,6 @@ MyString::~MyString()
 }
 
 
-const char* MyString::print() const
-{
+const char* MyString::print() const {
     return str;
 }

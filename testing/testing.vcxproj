@@ -25,6 +25,7 @@
     <ClInclude Include="Warehouse.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="MyString.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

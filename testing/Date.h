@@ -50,8 +50,8 @@ public:
 		}
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, const Date& obj);
-	friend std::istream& operator>>(std::istream& is, Date& obj);
+	friend ostream& operator<<(ostream& os, const Date& obj);
+	friend istream& operator>>(istream& is, Date& obj);
 };
 
 Date::Date(const Date& other) {
@@ -69,13 +69,13 @@ Date& Date::operator=(const Date& rhs) {
 	return *this;
 }
 
-std::ostream& operator<<(std::ostream& os, const Date& obj) { // i need to fix this to be write for file
+ostream& operator<<(ostream& os, const Date& obj) { // i need to fix this to be write for file
 	os << obj.day << "/" << obj.month << "/" << obj.year;
 
 	return os;
 }
 
-std::istream& operator>>(std::istream& is, Date& obj) {
+istream& operator>>(istream& is, Date& obj) {
 	is >> obj.day >> obj.month >> obj.year;
 
 	return is;

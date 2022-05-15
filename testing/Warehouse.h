@@ -15,6 +15,9 @@ private:
     unsigned capacity;
     unsigned productCount;
 
+    friend ostream& operator<<(ostream& os, const Warehouse& obj);
+    friend istream& operator>>(istream& is, Warehouse& obj);
+
 public:
     Warehouse();
     Warehouse(unsigned capacity, unsigned productCount); // is this constructor correct? need to figure out the arguments
@@ -73,12 +76,12 @@ public:
         return false;
     }
 
-    void addProduct(const char* name, const char* manufacturer, unsigned quantity, Date expiryDate, Date dateOfEntry, unsigned entrYear, unsigned ID) {
+    void addProduct(const Product& source) {
         clearPlacement();
         allocatePlacement();
         
         if (productCount < capacity) {
-            products[productCount] = Product(name, manufacturer, quantity, expiryDate, dateOfEntry, ID);
+            products[productCount] = source;
             productCount++;
         }
 
@@ -235,4 +238,20 @@ Warehouse::~Warehouse() {
     delete[] products;
 
     clearPlacement();
+}
+
+ostream& operator<<(ostream& os, const Warehouse& obj) { // incomplete
+
+    os.write((const char*)&obj.capacity, sizeof(unsigned));
+    os.write((const char*)&obj.productCount, sizeof(unsigned));
+
+    return os;
+}
+
+istream& operator>>(istream& is, Warehouse& obj) {
+
+    is.read((char*)&obj.capacity, sizeof(unsigned));
+    is.read((char*)&obj.productCount, sizeof(unsigned));
+
+    return is;
 }

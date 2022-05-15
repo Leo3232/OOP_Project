@@ -20,7 +20,7 @@ private:
 
 public:
     Product();
-    Product(const char* name, const char* manufacturer, unsigned quantity, Date expiryDate, Date dateOfEntry, unsigned ID); //, const char* description);
+    Product(MyString name, MyString manufacturer, unsigned quantity, Date expiryDate, Date dateOfEntry, unsigned ID); //, const char* description);
     Product(const Product& other);
     Product& operator=(const Product& rhs);
 
@@ -61,9 +61,11 @@ Product::Product() : name("No name"), manufacturer("No manufacturer"), quantity(
     dateOfEntry.setYear(0);
 }
 
-Product::Product(const char* name, const char* manufacturer, unsigned quantity, Date expiryDate, Date dateOfEntry, unsigned ID) //, const char* description)
-    : name(name), manufacturer(manufacturer), quantity(quantity), ID(ID)  //, description(description)
+Product::Product(MyString name, MyString manufacturer, unsigned quantity, Date expiryDate, Date dateOfEntry, unsigned ID) //, const char* description)
+    : quantity(quantity), ID(ID)  //, description(description)
 {
+    this->name = name;
+    this->manufacturer = manufacturer;
     this->expiryDate = expiryDate;
     this->dateOfEntry = dateOfEntry;
 }
@@ -109,8 +111,9 @@ std::ostream& operator<<(std::ostream& os, const Product& obj)  // need to fix o
 std::istream& operator>>(std::istream& is, Product& obj)
 {
     is >> obj.name >> obj.manufacturer; // >> obj.description;
-    is.read(reinterpret_cast<char*>(&obj.quantity), sizeof(unsigned));
+    is.read((char*)&obj.quantity, sizeof(unsigned));
     is.read((char*)&obj.ID, sizeof(unsigned));
+    is >> obj.expiryDate >> obj.dateOfEntry;
 
     return is;
 }
