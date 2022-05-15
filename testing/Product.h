@@ -36,6 +36,14 @@ public:
         return expiryDate.getYear();
     }
 
+    unsigned getExpMonth() const {
+        return expiryDate.getMonth();
+    }
+
+    unsigned getExpDay() const {
+        return expiryDate.getDay();
+    }
+
     unsigned getID() const {
         return ID;
     }

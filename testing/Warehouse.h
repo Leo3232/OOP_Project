@@ -20,11 +20,11 @@ public:
     Warehouse(unsigned capacity, unsigned productCount); // is this constructor correct? need to figure out the arguments
     ~Warehouse();
 
-    bool availability(int index) {
+    bool availability(int index) const {
         return products[index].getQuantity() > 0;
     }
 
-    void printAvailProducts() {
+    void printAvailProducts() const {
         int counter = 0;
         for (int i = 0; i < productCount; i++) {
             if (availability(i)) {
@@ -40,7 +40,7 @@ public:
         cout << counter << endl;
     }
 
-    bool outOfBounds(int counter) {
+    bool outOfBounds(int counter) const {
         return counter == productCount;
     }
 
@@ -57,12 +57,12 @@ public:
         }
     }
 
-    bool checkCondtionOne() {
+    bool checkCondtionOne() const {
         return (products[productCount - 2].getID() == products[productCount - 1].getID()) &&
             (products[productCount - 2].getExpDate() != products[productCount - 1].getExpDate());
     }
 
-    bool checkConditionTwo() {
+    bool checkConditionTwo() const {
         for (int i = 0; i < productCount; i++) {
             for (int j = i + 1; j < productCount; j++) {
                 if ((products[i].getName() == products[j].getName()) && (products[i].getExpDate() == products[j].getExpDate())) {
@@ -73,54 +73,14 @@ public:
         return false;
     }
 
-    void convertArr() {
-        const int size = 100;
-        int arr[size];
-        int counter = 0;
-
-        for (int section = 0; section < productCount; section++) {
-            for (int raft = 0; raft < 5; raft++) {
-                arr[counter] = placement[section][raft];
-                counter++;
-                if (outOfBounds(counter)) {
-                    return;
-                }
-            }
-        }
-    }
-
-    void revertArr() {
-        const int size = 100;
-        int arr[size];
-        int counter = 0;
-
-        for (int section = 0; section < productCount; section++) {
-            for (int raft = 0; raft < 5; raft++) {
-                placement[section][raft] = arr[counter];
-                counter++;
-                if (outOfBounds(counter)) {
-                    return;
-                }
-            }
-        }
-    }
-
     void addProduct(const char* name, const char* manufacturer, unsigned quantity, Date expiryDate, Date dateOfEntry, unsigned entrYear, unsigned ID) {
+        clearPlacement();
+        allocatePlacement();
+        
         if (productCount < capacity) {
-            // need to add resize I think
             products[productCount] = Product(name, manufacturer, quantity, expiryDate, dateOfEntry, ID);
             productCount++;
-            placeProduct(); // might need to move this function further down
         }
-
-        /*for (int i = 0; i < productCount; i++) {
-            for (int raft = 0; raft < 5; raft++) {
-            if ((products[i].getName()==products[productCount-1].getName()) &&
-               (products[i].getExpDate()!=products[productCount - 1].getExpDate())) {
-
-                }
-            }
-        }*/
 
         if (checkCondtionOne()) {
             for (int i = 0; i < productCount; i++) {
@@ -151,40 +111,92 @@ public:
             }
 
         }
-
-
-
+        placeProduct();
     }
 
-    void copy(Product* products, int** placement, unsigned capacity, unsigned productCount) {
-        for (int i = 0; i < productCount; ++i)
-            this->products[i] = products[i];
-
-        for (int i = 0; i < 100; i++) {     // need to change 100 to a global constant but im not ill use copy
-            for (int j = 0; j < 100; j++) {
-                this->placement[i][j] = placement[i][j];
+    void sortArr(int* arr) {
+        int temp = 0;
+        for (int i = 0; i < productCount; i++) {
+            for (int j = i + 1; j < productCount; j++) {
+                if (arr[i] > arr[j]) {
+                    temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
             }
         }
-
-        this->capacity = capacity;
-        this->productCount = productCount;
     }
 
-    void clear() {
-        delete[] products;
+    void removeProduct(const char* name, unsigned quantity) {
+        int* year = new int[productCount];
+        int* month = new int[productCount];
+        int* day = new int[productCount];
+
+        for (int i = 0; i < productCount; i++) {
+            if (products[i].getName() == name && quantity == 1) {
+                products[i].printProduct();
+                products[i] = products[productCount - 1];
+                productCount--;
+            }
+            else if (products[i].getName() == name && quantity > 1) {
+                year[i] = products[i].getExpDate();
+                month[i] = products[i].getExpMonth();
+                day[i] = products[i].getExpDay();
+            }
+        }
+        sortArr(year);
+        sortArr(month);
+        sortArr(day);
+
+        if (quantity > 1) {
+            for (int i = 0; i < quantity; i++) {
+                for (int j = 0; j < productCount; j++) {
+                    if (products[j].getName() == name && products[i].getExpDate() && products[i].getExpMonth() == month[i] &&
+                        products[i].getExpDay() == day[i]) {
+
+                        products[j].printProduct();
+                        products[j] = products[productCount - 1];
+                        productCount--;
+                        break;
+                    }
+                }
+            }
+        }
+        delete[] year;
+        delete[] month;
+        delete[] day;
+
+        /*the idea here is to put the expiration dates into separate arrays and, after sorting them in ascending order, use
+        them to find the product I need to remove first*/
+
     }
 
-    bool validateProductCount() {
+    void clearPlacement() {
+        for (int i = 0; i < MAX_RAFT_SIZE; ++i) {
+            delete[] placement[i];
+        }
+        delete[] placement;
+    }
+
+    void allocatePlacement() {
+        int** placement = new int* [MAX_SECTION_SIZE];
+
+        for (int i = 0; i < MAX_SECTION_SIZE; ++i) {
+            placement[i] = new int[MAX_RAFT_SIZE];
+        }
+    }
+
+    bool validateProductCount() const {
         return productCount < MAX_SECTION_SIZE;
     }
 
-    bool validateCapacity() {
+    bool validateCapacity() const {
         return capacity > productCount;
     }
 
 };
 
-Warehouse::Warehouse() : products(nullptr), placement(nullptr), capacity(0), productCount(0) {}
+Warehouse::Warehouse() : products(nullptr), capacity(0), productCount(0) {}
 
 Warehouse::Warehouse(unsigned capacity, unsigned productCount) {  // consider using productCount and maybe capacity as constr
 
@@ -193,18 +205,11 @@ Warehouse::Warehouse(unsigned capacity, unsigned productCount) {  // consider us
 
     products = new Product[capacity];
 
-    int** placement = new int* [MAX_SECTION_SIZE];
-
-    for (int i = 0; i < MAX_SECTION_SIZE; ++i) {
-        placement[i] = new int[MAX_RAFT_SIZE];
-    }
+    allocatePlacement();
 }
 
 Warehouse::~Warehouse() {
     delete[] products;
 
-    for (int i = 0; i < MAX_RAFT_SIZE; ++i) {
-        delete[] placement[i];
-    }
-    delete[] placement;
+    clearPlacement();
 }
