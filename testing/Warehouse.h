@@ -128,6 +128,29 @@ public:
     }
 
     void removeProduct(const char* name, unsigned quantity) {
+
+        unsigned counter = 0;
+        MyString answer;
+
+        for (int i = 0; i < productCount; i++) {
+            if (products[i].getName() == name) {
+                counter++;
+            }
+        }
+        if (counter > quantity) {
+            cout << counter << endl;
+            cout << "Enter 'yes' if you want to remove" << ' ' << counter << ' ' << "products instead, or enter 'no' if you want to cancel withdrawal" << endl;
+            do {
+                cin >> answer;
+            } while (!(answer == "yes") || !(answer == "no"));
+            if (answer == "yes") {
+                removeProduct(name, counter);
+            }
+            else if (answer == "no") {
+                return;
+            }
+        }
+
         int* year = new int[productCount];
         int* month = new int[productCount];
         int* day = new int[productCount];
