@@ -151,7 +151,7 @@ public:
         if (quantity > 1) {
             for (int i = 0; i < quantity; i++) {
                 for (int j = 0; j < productCount; j++) {
-                    if (products[j].getName() == name && products[i].getExpDate() && products[i].getExpMonth() == month[i] &&
+                    if (products[j].getName() == name && products[i].getExpDate()==year[i] && products[i].getExpMonth() == month[i] &&
                         products[i].getExpDay() == day[i]) {
 
                         products[j].printProduct();
