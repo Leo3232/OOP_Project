@@ -4,6 +4,7 @@
 
 using namespace std;
 
+const unsigned int MAX_SECTION_SIZE = 100;
 const unsigned int MAX_RAFT_SIZE = 5;
 
 class Warehouse
@@ -16,15 +17,27 @@ private:
 
 public:
     Warehouse();
-    Warehouse(int** placement); // is this constructor correct? need to figure out the arguments
+    Warehouse(unsigned capacity, unsigned productCount); // is this constructor correct? need to figure out the arguments
     ~Warehouse();
 
+    bool availability(int index) {
+        return products[index].getQuantity() > 0;
+    }
+
     void printAvailProducts() {
+        int counter = 0;
         for (int i = 0; i < productCount; i++) {
-            if (products[i].getQuantity() > 0) {
+            if (availability(i)) {
                 products[i].printProduct();
             }
+            for (int j = i + 1; j < productCount; j++) {
+                if ((products[i].getName() == products[j].getName()) && availability(i) && availability(j)) {
+                    counter++;
+                    break;
+                }
+            }
         }
+        cout << counter << endl;
     }
 
     bool outOfBounds(int counter) {
@@ -161,18 +174,37 @@ public:
         delete[] products;
     }
 
+    bool validateProductCount() {
+        return productCount < MAX_SECTION_SIZE;
+    }
+
+    bool validateCapacity() {
+        return capacity > productCount;
+    }
+
 };
 
 Warehouse::Warehouse() : products(nullptr), placement(nullptr), capacity(0), productCount(0) {}
 
-Warehouse::Warehouse(int** placement) {  // consider using productCount and maybe capacity as constr
+Warehouse::Warehouse(unsigned capacity, unsigned productCount) {  // consider using productCount and maybe capacity as constr
 
-    productCount = 0;
-    capacity = 2;
+    this->capacity = capacity;
+    this->productCount = productCount;
 
     products = new Product[capacity];
+
+    int** placement = new int* [MAX_SECTION_SIZE];
+
+    for (int i = 0; i < MAX_SECTION_SIZE; ++i) {
+        placement[i] = new int[MAX_RAFT_SIZE];
+    }
 }
 
 Warehouse::~Warehouse() {
+    delete[] products;
 
+    for (int i = 0; i < MAX_RAFT_SIZE; ++i) {
+        delete[] placement[i];
+    }
+    delete[] placement;
 }
